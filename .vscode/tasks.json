@@ -1,0 +1,41 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: gcc.exe Aktive Datei kompilieren",
+            "command": "C:\\msys64\\mingw64\\bin\\gcc.exe",
+            "args": [
+                "-static",
+                "-fdiagnostics-color=always",
+                "-g",
+                "${workspaceFolder}\\*.c",
+                "-o",
+                "${workspaceFolder}/game_of_life.exe",
+                "-Wall",
+                "-std=c99",
+                "-Wno-missing-braces",
+                "-I",
+                "${workspaceFolder}/include",
+                "-L",
+                "${workspaceFolder}/lib",
+				//"-mwindows",
+                "-lraylib",
+                "-lopengl32",
+                "-lgdi32",
+                "-lwinmm"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Vom Debugger generierte Aufgabe."
+        }
+    ],
+    "version": "2.0.0"
+}
