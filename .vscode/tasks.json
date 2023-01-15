@@ -8,7 +8,7 @@
                 "-static",
                 "-fdiagnostics-color=always",
                 "-g",
-                "${workspaceFolder}\\*.c",
+                "${workspaceFolder}\\src\\*.c",
                 "-o",
                 "${workspaceFolder}/game_of_life.exe",
                 "-Wall",

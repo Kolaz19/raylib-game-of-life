@@ -1,5 +1,12 @@
 {
     "files.associations": {
         "raylib.h": "c"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "c:\\C Projects\\Raylib Game of Life",
+            "binaryPath": "c:\\C Projects\\Raylib Game of Life\\game_of_life",
+            "binaryArgs": []
+        }
+    ]
 }
