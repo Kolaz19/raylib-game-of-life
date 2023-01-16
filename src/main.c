@@ -1,35 +1,40 @@
 #include "../include/raylib.h"
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
+
+
+void zoomCam(Camera2D *cam);
+
 int main(void)
 {
     // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 1920*0.7f;
+    const int screenHeight = 1080*0.7f;
+    Rectangle background = {0,0,3000,3000};
+    Camera2D cam = {0};
+    cam.zoom = 1.0f;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    InitWindow(screenWidth, screenHeight, "Game of Life");
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    SetTargetFPS(10);              
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
+    while (!WindowShouldClose()) {   // Detect window close button or ESC key
+    
         // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
+        zoomCam(&cam);
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
-
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+            BeginMode2D(cam);
+            DrawRectangle(background.x, background.y, background.width, background.height, YELLOW);
+            for(int i = 0; i < 1500; i++) {
+                DrawLine(i*2,0,i*2,1500,BLACK);
+            }
+            EndMode2D();
 
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -41,4 +46,13 @@ int main(void)
     //--------------------------------------------------------------------------------------
 
     return 0;
+}
+
+void zoomCam(Camera2D *cam) {
+    float mouseWheelMovement = GetMouseWheelMove();   
+    if(mouseWheelMovement > 0) {
+        cam->zoom += 0.02f;
+    } else if(mouseWheelMovement < 0) {
+        cam->zoom -= 0.02f;
+    }
 }

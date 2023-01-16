@@ -1,8 +1,30 @@
 {
     "tasks": [
         {
+            "type": "shell",
+            "label": "make build_debug",
+            "command": "make",
+            "args": [
+                "build_debug"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
+            "label": "make clean",
+            "command": "make",
+            "args": [
+                "clean"
+            ],
+            "problemMatcher": []
+        },
+        {
             "type": "cppbuild",
-            "label": "C/C++: gcc.exe Aktive Datei kompilieren",
+            "label": "Alternative build debug",
             "command": "C:\\msys64\\mingw64\\bin\\gcc.exe",
             "args": [
                 "-static",
@@ -18,7 +40,6 @@
                 "${workspaceFolder}/include",
                 "-L",
                 "${workspaceFolder}/lib",
-				//"-mwindows",
                 "-lraylib",
                 "-lopengl32",
                 "-lgdi32",
@@ -30,10 +51,7 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "detail": "Vom Debugger generierte Aufgabe."
         }
     ],
