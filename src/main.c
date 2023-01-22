@@ -1,7 +1,11 @@
 #include "../include/raylib.h"
 #include <stdio.h>
+#include <stdbool.h>
 
-#define BACKGROUND_SIZE 2000
+
+#define AMOUNT_TILES_LANE 400
+#define SPACE_BETWEEN_TILES 5
+#define BACKGROUND_SIZE AMOUNT_TILES_LANE*SPACE_BETWEEN_TILES+1
 
 const int screenWidth = 1920*0.8f;
 const int screenHeight = 1080*0.8f;
@@ -11,6 +15,7 @@ void zoomCam(Camera2D *cam);
 void prepareBackgroundTexture(RenderTexture2D *texture);
 void moveCam(Camera2D *cam);
 void adjustTargetToMouse(Camera2D *cam);
+bool isCamAtBoundary(Camera2D *cam, float zoomSpeed);
 
 int main(void)
 {
@@ -21,7 +26,7 @@ int main(void)
     RenderTexture2D backgroundTexture = LoadRenderTexture(BACKGROUND_SIZE,BACKGROUND_SIZE);
     prepareBackgroundTexture(&backgroundTexture);
     Camera2D cam = {0};
-    cam.zoom = 3.0f;
+    cam.zoom = 1.0f;  //3.0f
 
 
 
@@ -42,8 +47,9 @@ int main(void)
             ClearBackground(RAYWHITE);
             BeginMode2D(cam);
             DrawTexture(backgroundTexture.texture,0,0,WHITE);
-
+            
             EndMode2D();
+
 
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -58,18 +64,17 @@ int main(void)
 }
 
 void prepareBackgroundTexture(RenderTexture2D *texture) {
-    const int spaceBetweenLines = 5;
     BeginTextureMode(*texture);
             DrawRectangle(0,0,BACKGROUND_SIZE,BACKGROUND_SIZE,RAYWHITE);
-            for(int i = 0; i < BACKGROUND_SIZE/spaceBetweenLines; i++) {
-                DrawLine(i*spaceBetweenLines,0,i*spaceBetweenLines,BACKGROUND_SIZE,LIGHTGRAY);
-                DrawLine(0,i*spaceBetweenLines,BACKGROUND_SIZE,i*spaceBetweenLines,LIGHTGRAY);
-            }
+            for(int i = 0; i < BACKGROUND_SIZE/SPACE_BETWEEN_TILES+1; i++) {
+                DrawLine(i*SPACE_BETWEEN_TILES+1 ,0 ,i*SPACE_BETWEEN_TILES+1 ,BACKGROUND_SIZE ,LIGHTGRAY);
+                DrawLine(0 ,i*SPACE_BETWEEN_TILES ,BACKGROUND_SIZE ,i*SPACE_BETWEEN_TILES ,LIGHTGRAY);
+            }                     
     EndTextureMode();
 }
 
 void zoomCam(Camera2D *cam) {
-    const float scrollSpeed = 0.3f;
+    const float zoomSpeed = 0.3f;
     float mouseWheelMovement = GetMouseWheelMove();
 
     if (mouseWheelMovement != 0) {
@@ -77,9 +82,9 @@ void zoomCam(Camera2D *cam) {
     }
 
     if(mouseWheelMovement > 0) {
-        cam->zoom += scrollSpeed;
+        cam->zoom += zoomSpeed;
     } else if(mouseWheelMovement < 0) {
-        cam->zoom -= scrollSpeed;
+        cam->zoom -= zoomSpeed;
     }
 
     if(cam->zoom < 1.2f) {
@@ -113,4 +118,14 @@ void adjustTargetToMouse(Camera2D *cam) {
     cam->offset = offset;
     cam->target.x = mousePosWorld.x;
     cam->target.y = mousePosWorld.y;
+}
+
+bool isCamAtBoundary(Camera2D *cam, float zoomSpeed) {
+    Vector2 camPosLeftUpper = { cam->target.x - cam->offset.x/ (cam->zoom-zoomSpeed), cam->target.y - cam->offset.y/ (cam->zoom-zoomSpeed)};
+    Vector2 camPosRightDown = {camPosLeftUpper.x + GetScreenWidth()/(cam->zoom-zoomSpeed), camPosLeftUpper.y + GetScreenHeight()/(cam->zoom-zoomSpeed)};
+    if (camPosLeftUpper.x < 0 || camPosLeftUpper.y < 0 || camPosRightDown.x > BACKGROUND_SIZE | camPosRightDown.y > BACKGROUND_SIZE) {
+        return true;
+    } else {
+        return false;
+    }
 }
