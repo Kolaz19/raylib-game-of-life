@@ -11,11 +11,12 @@ const int screenWidth = 1920*0.8f;
 const int screenHeight = 1080*0.8f;
 
 
-void zoomCam(Camera2D *cam);
+
 void prepareBackgroundTexture(RenderTexture2D *texture);
+void zoomCam(Camera2D *cam);
 void moveCam(Camera2D *cam);
 void adjustTargetToMouse(Camera2D *cam);
-bool isCamAtBoundary(Camera2D *cam, float zoomSpeed);
+bool isCamOutOfBounds(Camera2D *cam);
 
 int main(void)
 {
@@ -62,7 +63,7 @@ int main(void)
 
     return 0;
 }
-
+/// @brief Draws all lines to one background texture
 void prepareBackgroundTexture(RenderTexture2D *texture) {
     BeginTextureMode(*texture);
             DrawRectangle(0,0,BACKGROUND_SIZE,BACKGROUND_SIZE,RAYWHITE);
@@ -73,11 +74,13 @@ void prepareBackgroundTexture(RenderTexture2D *texture) {
     EndTextureMode();
 }
 
+/// @brief Zoom to mouse position
 void zoomCam(Camera2D *cam) {
     const float zoomSpeed = 0.3f;
     float mouseWheelMovement = GetMouseWheelMove();
 
     if (mouseWheelMovement != 0) {
+        //Mouse position should be target for zoom
         adjustTargetToMouse(cam);
     }
 
@@ -92,13 +95,20 @@ void zoomCam(Camera2D *cam) {
     } else if (cam->zoom > 6.0f) {
         cam->zoom = 6.0f;
     }
+
+    while(isCamOutOfBounds(cam)) {
+        cam->zoom += 0.01f;
+    }
+
     //Alternative cam (static/without mouse target)
     //cam->offset = (Vector2){(float)GetScreenWidth()/2.0f,(float)GetScreenHeight()/2.0f};
 }
 
 void moveCam(Camera2D *cam) {
     static Vector2 previousMousePosition = {0};
-
+    //Save previous mose position to calculate drag distance between
+    //old and new mouse position
+    //For performance reasons this is only saved once for initial click
     if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         previousMousePosition = GetScreenToWorld2D(GetMousePosition(),*cam);
     }
@@ -106,26 +116,46 @@ void moveCam(Camera2D *cam) {
     if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(),*cam);
         Vector2 difference = {mouseWorldPos.x - previousMousePosition.x, mouseWorldPos.y - previousMousePosition.y};
-        cam->target = (Vector2){cam->target.x - difference.x, cam->target.y - difference.y};
+        Vector2 oldTarget = cam->target;
+        //Set to map boundaries when out of bounds
+        //x-achsis adjustment
+        cam->target.x = cam->target.x - difference.x;
+        if (isCamOutOfBounds(cam)) {
+            if (oldTarget.x > cam->target.x) {
+                cam->target.x = 0 + cam->offset.x / cam->zoom;
+            } else {
+                cam->target.x = (float)BACKGROUND_SIZE - ((float)GetScreenWidth() / cam->zoom) + (cam->offset.x / cam->zoom);
+            }
+        }
+        //y-achsis adjustment
+        cam->target.y = cam->target.y - difference.y;
+        if (isCamOutOfBounds(cam)) {
+            if (oldTarget.y > cam->target.y) {
+                cam->target.y = 0 + cam->offset.y / cam->zoom;
+            } else {
+                cam->target.y = (float)BACKGROUND_SIZE - ((float)GetScreenHeight() / cam->zoom) + (cam->offset.y / cam->zoom);
+            }
+        }
     }
 }
-
+/// @brief Set target of camera to mouse position
 void adjustTargetToMouse(Camera2D *cam) {
     Vector2 mousePos = GetMousePosition();
     Vector2 mousePosWorld = GetScreenToWorld2D(mousePos,*cam);
+    //Also set new offset so camera can stay in place
     Vector2 offset = {GetScreenWidth() - (GetScreenWidth() - mousePos.x), GetScreenHeight() - (GetScreenHeight() - mousePos.y)};
-
     cam->offset = offset;
+
     cam->target.x = mousePosWorld.x;
     cam->target.y = mousePosWorld.y;
 }
-
-bool isCamAtBoundary(Camera2D *cam, float zoomSpeed) {
-    Vector2 camPosLeftUpper = { cam->target.x - cam->offset.x/ (cam->zoom-zoomSpeed), cam->target.y - cam->offset.y/ (cam->zoom-zoomSpeed)};
-    Vector2 camPosRightDown = {camPosLeftUpper.x + GetScreenWidth()/(cam->zoom-zoomSpeed), camPosLeftUpper.y + GetScreenHeight()/(cam->zoom-zoomSpeed)};
+/// @brief Check if camera shows area outside of background
+bool isCamOutOfBounds(Camera2D *cam) {
+    Vector2 camPosLeftUpper = { cam->target.x - cam->offset.x/ cam->zoom, cam->target.y - cam->offset.y/ cam->zoom};
+    Vector2 camPosRightDown = {camPosLeftUpper.x + GetScreenWidth()/cam->zoom, camPosLeftUpper.y + GetScreenHeight()/cam->zoom};
     if (camPosLeftUpper.x < 0 || camPosLeftUpper.y < 0 || camPosRightDown.x > BACKGROUND_SIZE | camPosRightDown.y > BACKGROUND_SIZE) {
         return true;
     } else {
         return false;
     }
-}
+} 
