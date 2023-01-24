@@ -8,5 +8,6 @@
             "binaryPath": "c:\\C Projects\\Raylib Game of Life\\game_of_life",
             "binaryArgs": []
         }
-    ]
+    ],
+    "C_Cpp.errorSquiggles": "enabled"
 }

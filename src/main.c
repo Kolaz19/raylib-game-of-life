@@ -1,11 +1,13 @@
 #include "../include/raylib.h"
+#include "../include/gridCalc.h"
 #include <stdio.h>
 #include <stdbool.h>
 
 
+
 #define AMOUNT_TILES_LANE 400
 #define SPACE_BETWEEN_TILES 5
-#define BACKGROUND_SIZE AMOUNT_TILES_LANE*SPACE_BETWEEN_TILES+1
+#define BACKGROUND_SIZE (AMOUNT_TILES_LANE*SPACE_BETWEEN_TILES+1)
 
 const int screenWidth = 1920*0.8f;
 const int screenHeight = 1080*0.8f;
@@ -23,15 +25,18 @@ int main(void)
     // Initialization
     SetConfigFlags(FLAG_INTERLACED_HINT);
     InitWindow(screenWidth, screenHeight, "Game of Life");
-
+    //Background
     RenderTexture2D backgroundTexture = LoadRenderTexture(BACKGROUND_SIZE,BACKGROUND_SIZE);
     prepareBackgroundTexture(&backgroundTexture);
+    //Camera
     Camera2D cam = {0};
-    cam.zoom = 1.0f;  //3.0f
+    cam.zoom = 3.0f;
+    cam.target.x = (BACKGROUND_SIZE / 2) - (screenWidth / cam.zoom / 2);
+    cam.target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam.zoom / 2);
 
 
 
-    SetTargetFPS(30);              
+    SetTargetFPS(60);              
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -153,7 +158,7 @@ void adjustTargetToMouse(Camera2D *cam) {
 bool isCamOutOfBounds(Camera2D *cam) {
     Vector2 camPosLeftUpper = { cam->target.x - cam->offset.x/ cam->zoom, cam->target.y - cam->offset.y/ cam->zoom};
     Vector2 camPosRightDown = {camPosLeftUpper.x + GetScreenWidth()/cam->zoom, camPosLeftUpper.y + GetScreenHeight()/cam->zoom};
-    if (camPosLeftUpper.x < 0 || camPosLeftUpper.y < 0 || camPosRightDown.x > BACKGROUND_SIZE | camPosRightDown.y > BACKGROUND_SIZE) {
+    if (camPosLeftUpper.x < 0 || camPosLeftUpper.y < 0 || camPosRightDown.x > BACKGROUND_SIZE || camPosRightDown.y > BACKGROUND_SIZE) {
         return true;
     } else {
         return false;
