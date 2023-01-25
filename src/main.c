@@ -4,8 +4,6 @@
 #include <stdbool.h>
 
 
-
-#define AMOUNT_TILES_LANE 400
 #define SPACE_BETWEEN_TILES 5
 #define BACKGROUND_SIZE (AMOUNT_TILES_LANE*SPACE_BETWEEN_TILES+1)
 
@@ -22,7 +20,7 @@ bool isCamOutOfBounds(Camera2D *cam);
 
 int main(void)
 {
-    // Initialization
+    //Initialization
     SetConfigFlags(FLAG_INTERLACED_HINT);
     InitWindow(screenWidth, screenHeight, "Game of Life");
     //Background
@@ -33,39 +31,45 @@ int main(void)
     cam.zoom = 3.0f;
     cam.target.x = (BACKGROUND_SIZE / 2) - (screenWidth / cam.zoom / 2);
     cam.target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam.zoom / 2);
-
+    //Tiles
+    int tiles[AMOUNT_TILES_LANE][AMOUNT_TILES_LANE] = {0};
+    tiles[0][5] = 1;
+    tiles[2][6] = 1; 
+    tiles[57][0] = 1;
 
 
     SetTargetFPS(60);              
-    //--------------------------------------------------------------------------------------
 
-    // Main game loop
-    while (!WindowShouldClose()) {   // Detect window close button or ESC key
+
+    //Main game loop
+    while (!WindowShouldClose()) {
     
-        // Update
+        //Update
         zoomCam(&cam);
         moveCam(&cam);
+        setNextGeneration(&tiles[0][0]);
 
-        // Draw
-        //----------------------------------------------------------------------------------
+        //Draw
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
             BeginMode2D(cam);
             DrawTexture(backgroundTexture.texture,0,0,WHITE);
+            for(int i = 0; i < AMOUNT_TILES_LANE; i++) {
+                for (int k = 0; k < AMOUNT_TILES_LANE; k++) {
+                    if(tiles[i][k] == 1) {
+                        DrawRectangle(i*5+1,k*5+1,SPACE_BETWEEN_TILES-1,SPACE_BETWEEN_TILES-1,RED);
+                    }
+            }
+            } 
             
             EndMode2D();
 
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
+
     }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    CloseWindow();        
     return 0;
 }
 /// @brief Draws all lines to one background texture
