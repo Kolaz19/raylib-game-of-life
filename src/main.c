@@ -33,7 +33,8 @@ int main(void)
     cam.target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam.zoom / 2);
     //Tiles
     int tiles[AMOUNT_TILES_LANE][AMOUNT_TILES_LANE] = {0};
-    tiles[0][5] = 1;
+    tiles[0][0] = 1;
+    tiles[AMOUNT_TILES_LANE-1][0] = 1;
     tiles[2][6] = 1; 
     tiles[57][0] = 1;
 
