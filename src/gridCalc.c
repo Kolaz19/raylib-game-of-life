@@ -5,30 +5,31 @@
 #include <stdio.h>
 
 
-void setNeighbours(int** neighbours, int* middleTile, int arrayPosX, int arrayPosY);
+void setNeighbours(int** neighbours, int* middleCell, int arrayPosX, int arrayPosY);
 
-void setNextGeneration(int* tiles) {
+void setNextGeneration(int* cells) {
 
-    //Copy old tiles to working array
-    int oldTiles[AMOUNT_TILES_LANE][AMOUNT_TILES_LANE];
+    //Copy old cells to working array
+    int oldCells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE];
 
-    for (int i = 0; i < AMOUNT_TILES_LANE; i++) {
-        for (int k = 0; k < AMOUNT_TILES_LANE; k++) {
-            if(tiles[i*AMOUNT_TILES_LANE + k] == 1) {
-                tiles[i*AMOUNT_TILES_LANE + k] = 0;
-                oldTiles[i][k] = 1;
+    for (int i = 0; i < AMOUNT_CELLS_LANE; i++) {
+        for (int k = 0; k < AMOUNT_CELLS_LANE; k++) {
+            if(cells[i*AMOUNT_CELLS_LANE + k] == 1) {
+                cells[i*AMOUNT_CELLS_LANE + k] = 0;
+                oldCells[i][k] = 1;
             } else {
-                oldTiles[i][k] = 0;
+                oldCells[i][k] = 0;
             }
         }
     }
 
 
     int* neighbours[3][3];
-    for (int i = 0; i < AMOUNT_TILES_LANE; i++) {
-        for (int k = 0; k < AMOUNT_TILES_LANE; k++) {    
-            if (oldTiles[i][k] == 1) {
-                setNeighbours(&neighbours[0][0],&oldTiles[i][k],k,i);
+    for (int i = 0; i < AMOUNT_CELLS_LANE; i++) {
+        for (int k = 0; k < AMOUNT_CELLS_LANE; k++) {    
+            if (oldCells[i][k] == 1) {
+                setNeighbours(&neighbours[0][0],&oldCells[i][k],k,i);
+
             }
         }
     }
@@ -37,53 +38,68 @@ void setNextGeneration(int* tiles) {
 
 /// @brief Sets the pointer to the neighbours in a 3x3 grid
 /// @param neighbours Array to be filled with neighbours
-/// @param middleTile Middle tile of old generation for gathering of its neighbours
-/// @param arrayPosX X position of middle tile in array
-/// @param arrayPosY Y position of middle tile in array
-void setNeighbours(int** neighbours, int* middleTile, int arrayPosX, int arrayPosY) {
-    int* firstTile = middleTile-(arrayPosY * AMOUNT_TILES_LANE + arrayPosX);
-    neighbours[5] = middleTile;
+/// @param middleCell Middle cell of old generation for gathering of its neighbours
+/// @param arrayPosX X position of middle cell in array
+/// @param arrayPosY Y position of middle cell in array
+void setNeighbours(int** neighbours, int* middleCell, int arrayPosX, int arrayPosY) {
+    int* firstCell = middleCell-(arrayPosY * AMOUNT_CELLS_LANE + arrayPosX);
+    neighbours[4] = middleCell;
 
     //ABOVE
     if (arrayPosY == 0) {
-        neighbours[1] = middleTile+(AMOUNT_TILES_LANE*(AMOUNT_TILES_LANE-1));
+        neighbours[1] = middleCell+(AMOUNT_CELLS_LANE*(AMOUNT_CELLS_LANE-1));
     } else {
-        neighbours[1] = middleTile-(AMOUNT_TILES_LANE);
+        neighbours[1] = middleCell-(AMOUNT_CELLS_LANE);
     }
     //LEFT
     if (arrayPosX == 0) {
-        neighbours[3] = middleTile+(AMOUNT_TILES_LANE-1);
+        neighbours[3] = middleCell+(AMOUNT_CELLS_LANE-1);
     } else {
-        neighbours[3] = middleTile-1;
+        neighbours[3] = middleCell-1;
     }
     //DOWN
-    if (arrayPosY == AMOUNT_TILES_LANE-1) {
-        neighbours[8] = middleTile-(AMOUNT_TILES_LANE*(AMOUNT_TILES_LANE-1));
+    if (arrayPosY == AMOUNT_CELLS_LANE-1) {
+        neighbours[7] = middleCell-(AMOUNT_CELLS_LANE*(AMOUNT_CELLS_LANE-1));
     } else {
-        neighbours[8] = middleTile+(AMOUNT_TILES_LANE);
+        neighbours[7] = middleCell+(AMOUNT_CELLS_LANE);
     }
     //RIGHT
-    if (arrayPosX == AMOUNT_TILES_LANE-1) {
-        neighbours[5] = middleTile-(AMOUNT_TILES_LANE-1);
+    if (arrayPosX == AMOUNT_CELLS_LANE-1) {
+        neighbours[5] = middleCell-(AMOUNT_CELLS_LANE-1);
     } else {
-        neighbours[5] = middleTile+1;
+        neighbours[5] = middleCell+1;
     }
 
-
-
-/*     if ((arrayPosX == 0) && (arrayPosY == 0)) {
-        neighbours[0] = firstTile+(AMOUNT_TILES_LANE*AMOUNT_TILES_LANE-1);
-    } else if (arrayPosX == 0) {
-        neighbours[0] = middleTile-1;
-    } else if (arrayPosY == 0) {
-        neighbours[0] = firstTile+(AMOUNT_TILES_LANE*(AMOUNT_TILES_LANE-1)+arrayPosX-1);
+    //ABOVE LEFT
+    if(arrayPosX == 0) {
+        neighbours[0] = neighbours[1]+(AMOUNT_CELLS_LANE-1);
     } else {
+        neighbours[0] = neighbours[1]-1;
+    }
+    //DOWN LEFT
+    if(arrayPosX == 0) {
+        neighbours[6] = neighbours[7]+(AMOUNT_CELLS_LANE-1);
+    } else {
+        neighbours[6] = neighbours[7]-1;    
+    }
+    //ABOVE RIGHT
+    if(arrayPosX == AMOUNT_CELLS_LANE-1) {
+        neighbours[2] = neighbours[1]-(AMOUNT_CELLS_LANE-1);
+    } else {
+        neighbours[2] = neighbours[1]+1;
+    }
+    //DOWN RIGHT
+    if(arrayPosX == AMOUNT_CELLS_LANE-1) {
+        neighbours[8] = neighbours[7]-(AMOUNT_CELLS_LANE-1);
+    } else {
+        neighbours[8] = neighbours[7]+1;
+    }
 
-    } */
+//Test neigbhbour layout
+/*     printf("%d-%d-%d\n", *neighbours[0],*neighbours[1], *neighbours[2]);
+    printf("%d-%d-%d\n", *neighbours[3],*neighbours[4], *neighbours[5]);
+    printf("%d-%d-%d\n\n", *neighbours[6],*neighbours[7], *neighbours[8]); */
 
-    
-
-    
 }
 
 

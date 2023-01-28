@@ -1,8 +1,8 @@
 #ifndef GRID_CALC_H
 #define GRID_CALC_H
 
-#define AMOUNT_TILES_LANE 400
+#define AMOUNT_CELLS_LANE 400
 
-void setNextGeneration(int* tiles);
+void setNextGeneration(int* cells);
 
 #endif

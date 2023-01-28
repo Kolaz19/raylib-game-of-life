@@ -4,8 +4,8 @@
 #include <stdbool.h>
 
 
-#define SPACE_BETWEEN_TILES 5
-#define BACKGROUND_SIZE (AMOUNT_TILES_LANE*SPACE_BETWEEN_TILES+1)
+#define SPACE_BETWEEN_CELLS 5
+#define BACKGROUND_SIZE (AMOUNT_CELLS_LANE*SPACE_BETWEEN_CELLS+1)
 
 const int screenWidth = 1920*0.8f;
 const int screenHeight = 1080*0.8f;
@@ -32,11 +32,7 @@ int main(void)
     cam.target.x = (BACKGROUND_SIZE / 2) - (screenWidth / cam.zoom / 2);
     cam.target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam.zoom / 2);
     //Tiles
-    int tiles[AMOUNT_TILES_LANE][AMOUNT_TILES_LANE] = {0};
-    tiles[0][0] = 1;
-    tiles[AMOUNT_TILES_LANE-1][0] = 1;
-    tiles[2][6] = 1; 
-    tiles[57][0] = 1;
+    int cells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE] = {0};
 
 
     SetTargetFPS(60);              
@@ -48,7 +44,8 @@ int main(void)
         //Update
         zoomCam(&cam);
         moveCam(&cam);
-        setNextGeneration(&tiles[0][0]);
+        setNextGeneration(&cells[0][0]);
+
 
         //Draw
         BeginDrawing();
@@ -56,10 +53,10 @@ int main(void)
             ClearBackground(RAYWHITE);
             BeginMode2D(cam);
             DrawTexture(backgroundTexture.texture,0,0,WHITE);
-            for(int i = 0; i < AMOUNT_TILES_LANE; i++) {
-                for (int k = 0; k < AMOUNT_TILES_LANE; k++) {
-                    if(tiles[i][k] == 1) {
-                        DrawRectangle(i*5+1,k*5+1,SPACE_BETWEEN_TILES-1,SPACE_BETWEEN_TILES-1,RED);
+            for(int i = 0; i < AMOUNT_CELLS_LANE; i++) {
+                for (int k = 0; k < AMOUNT_CELLS_LANE; k++) {
+                    if(cells[i][k] == 1) {
+                        DrawRectangle(i*5+1,k*5+1,SPACE_BETWEEN_CELLS-1,SPACE_BETWEEN_CELLS-1,RED);
                     }
             }
             } 
@@ -77,9 +74,9 @@ int main(void)
 void prepareBackgroundTexture(RenderTexture2D *texture) {
     BeginTextureMode(*texture);
             DrawRectangle(0,0,BACKGROUND_SIZE,BACKGROUND_SIZE,RAYWHITE);
-            for(int i = 0; i < BACKGROUND_SIZE/SPACE_BETWEEN_TILES+1; i++) {
-                DrawLine(i*SPACE_BETWEEN_TILES+1 ,0 ,i*SPACE_BETWEEN_TILES+1 ,BACKGROUND_SIZE ,LIGHTGRAY);
-                DrawLine(0 ,i*SPACE_BETWEEN_TILES ,BACKGROUND_SIZE ,i*SPACE_BETWEEN_TILES ,LIGHTGRAY);
+            for(int i = 0; i < BACKGROUND_SIZE/SPACE_BETWEEN_CELLS+1; i++) {
+                DrawLine(i*SPACE_BETWEEN_CELLS+1 ,0 ,i*SPACE_BETWEEN_CELLS+1 ,BACKGROUND_SIZE ,LIGHTGRAY);
+                DrawLine(0 ,i*SPACE_BETWEEN_CELLS ,BACKGROUND_SIZE ,i*SPACE_BETWEEN_CELLS ,LIGHTGRAY);
             }                     
     EndTextureMode();
 }
