@@ -6,10 +6,12 @@
 
 
 void setNeighbours(int** neighbours, int* middleCell, int arrayPosX, int arrayPosY);
+int getNumberOfNeighbours(int **neighbours);
+bool willCellLive(int **neighbours);
 
 void setNextGeneration(int* cells) {
 
-    //Copy old cells to working array
+    //Copy current cells to working array and clear current cells
     int oldCells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE];
 
     for (int i = 0; i < AMOUNT_CELLS_LANE; i++) {
@@ -27,14 +29,17 @@ void setNextGeneration(int* cells) {
     int* neighbours[3][3];
     for (int i = 0; i < AMOUNT_CELLS_LANE; i++) {
         for (int k = 0; k < AMOUNT_CELLS_LANE; k++) {    
-            if (oldCells[i][k] == 1) {
-                setNeighbours(&neighbours[0][0],&oldCells[i][k],k,i);
 
+            setNeighbours(&neighbours[0][0],&oldCells[i][k],k,i);
+            //Activate cell
+            if (willCellLive(&neighbours[0][0])) {
+                cells[i*AMOUNT_CELLS_LANE + k] = 1;
             }
         }
     }
-
 }
+
+
 
 /// @brief Sets the pointer to the neighbours in a 3x3 grid
 /// @param neighbours Array to be filled with neighbours
@@ -103,3 +108,33 @@ void setNeighbours(int** neighbours, int* middleCell, int arrayPosX, int arrayPo
 }
 
 
+bool willCellLive(int **neighbours) {
+    int cellNeighbourCount = getNumberOfNeighbours(neighbours);
+    //If middle cell is dead
+    if (*neighbours[4] == 0) {
+        if (cellNeighbourCount == 3) {
+            return true;
+        }
+    //If middle cell is alive
+    } else {
+        if (cellNeighbourCount == 2 || cellNeighbourCount == 3) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int getNumberOfNeighbours(int **neighbours) {
+    int numberOfNeighbours = 0;
+    for (int i = 0; i < 9; i++) {
+        //Ignore middle cell
+        if (i == 4) {
+            continue;
+        }
+
+        if (*neighbours[i] == 1) {
+            numberOfNeighbours++;
+        }
+    }
+    return numberOfNeighbours;
+}

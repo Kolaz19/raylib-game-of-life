@@ -33,8 +33,14 @@ int main(void)
     cam.target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam.zoom / 2);
     //Tiles
     int cells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE] = {0};
+    cells[(AMOUNT_CELLS_LANE/2)][(AMOUNT_CELLS_LANE/2)] = 1;
+    cells[(AMOUNT_CELLS_LANE/2)+1][(AMOUNT_CELLS_LANE/2)+1] = 1;
+    cells[(AMOUNT_CELLS_LANE/2)+1][(AMOUNT_CELLS_LANE/2)+2] = 1;
+    cells[(AMOUNT_CELLS_LANE/2)+2][(AMOUNT_CELLS_LANE/2)] = 1;
+    cells[(AMOUNT_CELLS_LANE/2)+2][(AMOUNT_CELLS_LANE/2)+1] = 1;
 
 
+    int frames = 0;
     SetTargetFPS(60);              
 
 
@@ -44,7 +50,13 @@ int main(void)
         //Update
         zoomCam(&cam);
         moveCam(&cam);
+        if (frames == 30) {
         setNextGeneration(&cells[0][0]);
+            frames = 0;
+        } else {
+            frames++;
+        }
+        
 
 
         //Draw
@@ -56,7 +68,7 @@ int main(void)
             for(int i = 0; i < AMOUNT_CELLS_LANE; i++) {
                 for (int k = 0; k < AMOUNT_CELLS_LANE; k++) {
                     if(cells[i][k] == 1) {
-                        DrawRectangle(i*5+1,k*5+1,SPACE_BETWEEN_CELLS-1,SPACE_BETWEEN_CELLS-1,RED);
+                        DrawRectangle(k*5+1,i*5+1,SPACE_BETWEEN_CELLS-1,SPACE_BETWEEN_CELLS-1,RED);
                     }
             }
             } 
