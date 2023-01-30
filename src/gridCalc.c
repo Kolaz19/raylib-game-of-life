@@ -100,7 +100,7 @@ void setNeighbours(int** neighbours, int* middleCell, int arrayPosX, int arrayPo
         neighbours[8] = neighbours[7]+1;
     }
 
-//Test neigbhbour layout
+//Test neighbour layout
 /*     printf("%d-%d-%d\n", *neighbours[0],*neighbours[1], *neighbours[2]);
     printf("%d-%d-%d\n", *neighbours[3],*neighbours[4], *neighbours[5]);
     printf("%d-%d-%d\n\n", *neighbours[6],*neighbours[7], *neighbours[8]); */

@@ -7,8 +7,14 @@
 #define SPACE_BETWEEN_CELLS 5
 #define BACKGROUND_SIZE (AMOUNT_CELLS_LANE*SPACE_BETWEEN_CELLS+1)
 
+typedef enum GameState {
+    PLACE_TILES,
+    SIMULATE
+} GameState;
+
 const int screenWidth = 1920*0.8f;
 const int screenHeight = 1080*0.8f;
+GameState currentGameState = SIMULATE;
 
 
 
@@ -17,6 +23,7 @@ void zoomCam(Camera2D *cam);
 void moveCam(Camera2D *cam);
 void adjustTargetToMouse(Camera2D *cam);
 bool isCamOutOfBounds(Camera2D *cam);
+void simulate(int *cells, int *frameCounter, int frameCycle);
 
 int main(void)
 {
@@ -38,9 +45,9 @@ int main(void)
     cells[(AMOUNT_CELLS_LANE/2)+1][(AMOUNT_CELLS_LANE/2)+2] = 1;
     cells[(AMOUNT_CELLS_LANE/2)+2][(AMOUNT_CELLS_LANE/2)] = 1;
     cells[(AMOUNT_CELLS_LANE/2)+2][(AMOUNT_CELLS_LANE/2)+1] = 1;
-
-
-    int frames = 0;
+    //Simulation Update Cycle
+    int frameCounter = 0;
+    int frameLimitForUpdate = 30;
     SetTargetFPS(60);              
 
 
@@ -50,12 +57,15 @@ int main(void)
         //Update
         zoomCam(&cam);
         moveCam(&cam);
-        if (frames == 30) {
-        setNextGeneration(&cells[0][0]);
-            frames = 0;
-        } else {
-            frames++;
+        //Update twice every second
+        switch(currentGameState) {
+            case SIMULATE:
+                simulate(cells,&frameCounter,frameLimitForUpdate);
+                break;
+            case PLACE_TILES:
+                break;
         }
+
         
 
 
@@ -68,14 +78,12 @@ int main(void)
             for(int i = 0; i < AMOUNT_CELLS_LANE; i++) {
                 for (int k = 0; k < AMOUNT_CELLS_LANE; k++) {
                     if(cells[i][k] == 1) {
-                        DrawRectangle(k*5+1,i*5+1,SPACE_BETWEEN_CELLS-1,SPACE_BETWEEN_CELLS-1,RED);
+                        DrawRectangle(k*SPACE_BETWEEN_CELLS+1,i*SPACE_BETWEEN_CELLS+1,SPACE_BETWEEN_CELLS-1,SPACE_BETWEEN_CELLS-1,BLUE);
                     }
-            }
+                }
             } 
             
             EndMode2D();
-
-
         EndDrawing();
 
     }
@@ -178,3 +186,15 @@ bool isCamOutOfBounds(Camera2D *cam) {
         return false;
     }
 } 
+
+/// @brief Update cells in grid after specific period of time
+/// @param frameCounter Counts up after every call and resets after frameLimitForUpdate is reached
+/// @param frameLimitForUpdate Update after this many frames
+void simulate(int *cells, int *frameCounter, int frameLimitForUpdate) {
+    if (*frameCounter == frameLimitForUpdate) {
+        setNextGeneration(cells);
+        *frameCounter = 0;
+    } else {
+        (*frameCounter)++;
+    }  
+}
