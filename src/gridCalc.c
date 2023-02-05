@@ -1,4 +1,5 @@
 #include "../include/gridCalc.h"
+#include "../include/gridProperties.h"
 //#define NDEBUG
 #include <assert.h>
 #include <stdbool.h>
@@ -47,7 +48,6 @@ void setNextGeneration(int* cells) {
 /// @param arrayPosX X position of middle cell in array
 /// @param arrayPosY Y position of middle cell in array
 void setNeighbours(int** neighbours, int* middleCell, int arrayPosX, int arrayPosY) {
-    int* firstCell = middleCell-(arrayPosY * AMOUNT_CELLS_LANE + arrayPosX);
     neighbours[4] = middleCell;
 
     //ABOVE

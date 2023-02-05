@@ -1,11 +1,10 @@
 #include "../include/raylib.h"
 #include "../include/gridCalc.h"
+#include "../include/tilePlacement.h"
+#include "../include/gridProperties.h"
 #include <stdio.h>
 #include <stdbool.h>
 
-
-#define SPACE_BETWEEN_CELLS 5
-#define BACKGROUND_SIZE (AMOUNT_CELLS_LANE*SPACE_BETWEEN_CELLS+1)
 
 typedef enum GameState {
     PLACE_TILES,
@@ -14,7 +13,7 @@ typedef enum GameState {
 
 const int screenWidth = 1920*0.8f;
 const int screenHeight = 1080*0.8f;
-GameState currentGameState = SIMULATE;
+GameState currentGameState = PLACE_TILES;
 
 
 
@@ -60,7 +59,7 @@ int main(void)
         //Update twice every second
         switch(currentGameState) {
             case SIMULATE:
-                simulate(cells,&frameCounter,frameLimitForUpdate);
+                simulate(&cells[0][0],&frameCounter,frameLimitForUpdate);
                 break;
             case PLACE_TILES:
                 break;
@@ -165,6 +164,7 @@ void moveCam(Camera2D *cam) {
         }
     }
 }
+
 /// @brief Set target of camera to mouse position
 void adjustTargetToMouse(Camera2D *cam) {
     Vector2 mousePos = GetMousePosition();
