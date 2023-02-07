@@ -23,6 +23,8 @@ void moveCam(Camera2D *cam);
 void adjustTargetToMouse(Camera2D *cam);
 bool isCamOutOfBounds(Camera2D *cam);
 void simulate(int *cells, int *frameCounter, int frameCycle);
+void switchModes(void);
+void resetCells(int *cells);
 
 int main(void)
 {
@@ -56,6 +58,8 @@ int main(void)
         //Update
         zoomCam(&cam);
         moveCam(&cam);
+        switchModes();
+        resetCells(&cells[0][0]);
         //Update twice every second
         switch(currentGameState) {
             case SIMULATE:
@@ -136,11 +140,11 @@ void moveCam(Camera2D *cam) {
     //Save previous mose position to calculate drag distance between
     //old and new mouse position
     //For performance reasons this is only saved once for initial click
-    if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    if(IsKeyPressed(KEY_SPACE)) {
         previousMousePosition = GetScreenToWorld2D(GetMousePosition(),*cam);
     }
 
-    if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+    if(IsKeyDown(KEY_SPACE)) {
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(),*cam);
         Vector2 difference = {mouseWorldPos.x - previousMousePosition.x, mouseWorldPos.y - previousMousePosition.y};
         Vector2 oldTarget = cam->target;
@@ -198,4 +202,25 @@ void simulate(int *cells, int *frameCounter, int frameLimitForUpdate) {
     } else {
         (*frameCounter)++;
     }  
+}
+
+void switchModes(void) {
+    if(!IsKeyPressed(KEY_ENTER)) return;
+    
+    if(currentGameState == PLACE_TILES) {
+        currentGameState = SIMULATE;
+    } else {
+        currentGameState = PLACE_TILES;
+    }
+}
+
+void resetCells(int *cells) {
+    if(!IsKeyPressed(KEY_R)) return;
+
+    currentGameState = PLACE_TILES;
+     for (int i = 0; i < AMOUNT_CELLS_LANE; i++) {
+        for (int k = 0; k < AMOUNT_CELLS_LANE; k++) {
+            *(cells+(k*AMOUNT_CELLS_LANE+i)) = 0;
+        }
+    }
 }
