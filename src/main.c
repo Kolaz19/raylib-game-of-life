@@ -1,6 +1,6 @@
 #include "../include/raylib.h"
 #include "../include/gridCalc.h"
-#include "../include/tilePlacement.h"
+#include "../include/cellPlacement.h"
 #include "../include/gridProperties.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -62,6 +62,7 @@ int main(void)
                 simulate(&cells[0][0],&frameCounter,frameLimitForUpdate);
                 break;
             case PLACE_TILES:
+                placeCellWithCursor(&cells[0][0],&cam);
                 break;
         }
 

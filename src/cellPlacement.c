@@ -1,6 +1,7 @@
 #include "../include/cellPlacement.h"
 #include "../include/gridProperties.h"
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef enum EditMode {
     NONE,
@@ -18,9 +19,15 @@ void placeCellWithCursor(int *cells, Camera2D *cam) {
         return;
     }
 
+    int *cellAtMouse = getCellAtMousePos(cells,GetScreenToWorld2D(GetMousePosition(),*cam));
 
+    if (cellAtMouse == NULL) {
+        return;
+    }
 
-
+    if (editMode == PLACE) {
+        *cellAtMouse = 1;
+    }
 }
 
 
@@ -38,5 +45,11 @@ EditMode getEditMode() {
 }
 
 int* getCellAtMousePos(int *cells, Vector2 mousePos) {
-    
+    int xCell = (int)mousePos.x / SPACE_BETWEEN_CELLS;
+    int yCell = (int)mousePos.y / SPACE_BETWEEN_CELLS;
+    Rectangle rect = {xCell*SPACE_BETWEEN_CELLS+1,yCell*SPACE_BETWEEN_CELLS+1,SPACE_BETWEEN_CELLS-1,SPACE_BETWEEN_CELLS-1};
+    if(!CheckCollisionPointRec(mousePos,rect)) {
+        return NULL;
+    }
+    return cells+(yCell*AMOUNT_CELLS_LANE+xCell);
 }
