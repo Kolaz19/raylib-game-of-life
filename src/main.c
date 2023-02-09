@@ -23,11 +23,11 @@ void moveCam(Camera2D *cam);
 void adjustTargetToMouse(Camera2D *cam);
 bool isCamOutOfBounds(Camera2D *cam);
 void simulate(int *cells, int *frameCounter, int frameCycle);
-void switchModes(void);
-void resetCells(int *cells);
+void checkSwitchModes(void);
+void checkResetState(int *cells, Camera2D *cam);
+void drawHud(void);
 
-int main(void)
-{
+int main(void) {
     //Initialization
     SetConfigFlags(FLAG_INTERLACED_HINT);
     InitWindow(screenWidth, screenHeight, "Game of Life");
@@ -41,11 +41,6 @@ int main(void)
     cam.target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam.zoom / 2);
     //Tiles
     int cells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE] = {0};
-    cells[(AMOUNT_CELLS_LANE/2)][(AMOUNT_CELLS_LANE/2)] = 1;
-    cells[(AMOUNT_CELLS_LANE/2)+1][(AMOUNT_CELLS_LANE/2)+1] = 1;
-    cells[(AMOUNT_CELLS_LANE/2)+1][(AMOUNT_CELLS_LANE/2)+2] = 1;
-    cells[(AMOUNT_CELLS_LANE/2)+2][(AMOUNT_CELLS_LANE/2)] = 1;
-    cells[(AMOUNT_CELLS_LANE/2)+2][(AMOUNT_CELLS_LANE/2)+1] = 1;
     //Simulation Update Cycle
     int frameCounter = 0;
     int frameLimitForUpdate = 30;
@@ -58,18 +53,14 @@ int main(void)
         //Update
         zoomCam(&cam);
         moveCam(&cam);
-        switchModes();
-        resetCells(&cells[0][0]);
-        //Update twice every second
+        checkSwitchModes();
+        checkResetState(&cells[0][0],&cam);
         switch(currentGameState) {
             case SIMULATE:
                 simulate(&cells[0][0],&frameCounter,frameLimitForUpdate);
                 break;
-            case PLACE_TILES:
-                placeCellWithCursor(&cells[0][0],&cam);
-                break;
         }
-
+        placeCellWithCursor(&cells[0][0],&cam);
         
 
 
@@ -86,14 +77,15 @@ int main(void)
                     }
                 }
             } 
-            
             EndMode2D();
+            drawHud();
         EndDrawing();
 
     }
     CloseWindow();        
     return 0;
 }
+
 /// @brief Draws all lines to one background texture
 void prepareBackgroundTexture(RenderTexture2D *texture) {
     BeginTextureMode(*texture);
@@ -204,7 +196,7 @@ void simulate(int *cells, int *frameCounter, int frameLimitForUpdate) {
     }  
 }
 
-void switchModes(void) {
+void checkSwitchModes(void) {
     if(!IsKeyPressed(KEY_ENTER)) return;
     
     if(currentGameState == PLACE_TILES) {
@@ -214,7 +206,7 @@ void switchModes(void) {
     }
 }
 
-void resetCells(int *cells) {
+void checkResetState(int *cells, Camera2D *cam) {
     if(!IsKeyPressed(KEY_R)) return;
 
     currentGameState = PLACE_TILES;
@@ -223,4 +215,25 @@ void resetCells(int *cells) {
             *(cells+(k*AMOUNT_CELLS_LANE+i)) = 0;
         }
     }
+    cam->zoom = 3.0f;
+    cam->target.x = (BACKGROUND_SIZE / 2) - (screenWidth / cam->zoom / 2);
+    cam->target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam->zoom / 2);
+}
+
+void drawHud(void) {
+    if (currentGameState == PLACE_TILES) {
+        DrawRectangle(GetScreenWidth()-50,GetScreenHeight()-90,20,60,BLACK);
+        DrawRectangle(GetScreenWidth()-85,GetScreenHeight()-90,20,60,BLACK);
+        DrawText("ENTER",30,30,30,RED);
+        DrawText("SPACE",30,60,30,RED);
+        DrawText("R",30,90,30,RED);
+
+        DrawText("PLAY/PAUSE",150,30,30,BLACK);
+        DrawText("MOVE CAMERA",150,60,30,BLACK);
+        DrawText("RESET",150,90,30,BLACK);
+
+        DrawRectangleLinesEx((Rectangle){20,22,370,105},4,BLACK);
+        
+    }
+
 }
