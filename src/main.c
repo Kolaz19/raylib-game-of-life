@@ -11,6 +11,15 @@ typedef enum GameState {
     SIMULATE
 } GameState;
 
+/// @brief Is used to display rectangles at side of screen to
+/// indicate that cam collides with border
+typedef struct CamBorderCollision {
+    bool left;
+    bool right;
+    bool up;
+    bool down;
+} CamBorderCollision;
+
 const int screenWidth = 1920*0.8f;
 const int screenHeight = 1080*0.8f;
 GameState currentGameState = PLACE_TILES;
@@ -18,14 +27,14 @@ GameState currentGameState = PLACE_TILES;
 
 
 void prepareBackgroundTexture(RenderTexture2D *texture);
-void zoomCam(Camera2D *cam);
-void moveCam(Camera2D *cam);
+void zoomCam(Camera2D *cam, CamBorderCollision *camBorderCollision);
+void moveCam(Camera2D *cam, CamBorderCollision *camBorderCollision);
 void adjustTargetToMouse(Camera2D *cam);
 bool isCamOutOfBounds(Camera2D *cam);
 void simulate(int *cells, int *frameCounter, int frameCycle);
 void checkSwitchModes(void);
 void checkResetState(int *cells, Camera2D *cam);
-void drawHud(void);
+void drawHud(CamBorderCollision *camBorderCollision);
 
 int main(void) {
     //Initialization
@@ -39,20 +48,28 @@ int main(void) {
     cam.zoom = 3.0f;
     cam.target.x = (BACKGROUND_SIZE / 2) - (screenWidth / cam.zoom / 2);
     cam.target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam.zoom / 2);
+    CamBorderCollision camBorderCollision = {false};
     //Tiles
     int cells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE] = {0};
     //Simulation Update Cycle
     int frameCounter = 0;
-    int frameLimitForUpdate = 30;
+    int frameLimitForUpdate = 1;
     SetTargetFPS(60);              
 
 
     //Main game loop
     while (!WindowShouldClose()) {
-    
+
+        //Reset cam border collision
+        camBorderCollision.down = false;
+        camBorderCollision.up = false;
+        camBorderCollision.right = false;
+        camBorderCollision.left = false;
+
+        //Update cam and check if border is hit with zoom or movement
+        zoomCam(&cam, &camBorderCollision);
+        moveCam(&cam, &camBorderCollision);
         //Update
-        zoomCam(&cam);
-        moveCam(&cam);
         checkSwitchModes();
         checkResetState(&cells[0][0],&cam);
         switch(currentGameState) {
@@ -78,7 +95,7 @@ int main(void) {
                 }
             } 
             EndMode2D();
-            drawHud();
+            drawHud(&camBorderCollision);
         EndDrawing();
 
     }
@@ -98,7 +115,7 @@ void prepareBackgroundTexture(RenderTexture2D *texture) {
 }
 
 /// @brief Zoom to mouse position
-void zoomCam(Camera2D *cam) {
+void zoomCam(Camera2D *cam, CamBorderCollision *camBorderCollision) {
     const float zoomSpeed = 0.3f;
     float mouseWheelMovement = GetMouseWheelMove();
 
@@ -121,13 +138,17 @@ void zoomCam(Camera2D *cam) {
 
     while(isCamOutOfBounds(cam)) {
         cam->zoom += 0.01f;
+        camBorderCollision->down = true;
+        camBorderCollision->up = true;
+        camBorderCollision->left = true;
+        camBorderCollision->right = true;
     }
 
     //Alternative cam (static/without mouse target)
     //cam->offset = (Vector2){(float)GetScreenWidth()/2.0f,(float)GetScreenHeight()/2.0f};
 }
 
-void moveCam(Camera2D *cam) {
+void moveCam(Camera2D *cam, CamBorderCollision *camBorderCollision) {
     static Vector2 previousMousePosition = {0};
     //Save previous mose position to calculate drag distance between
     //old and new mouse position
@@ -146,8 +167,10 @@ void moveCam(Camera2D *cam) {
         if (isCamOutOfBounds(cam)) {
             if (oldTarget.x > cam->target.x) {
                 cam->target.x = 0 + cam->offset.x / cam->zoom;
+                camBorderCollision->left = true;
             } else {
                 cam->target.x = (float)BACKGROUND_SIZE - ((float)GetScreenWidth() / cam->zoom) + (cam->offset.x / cam->zoom);
+                camBorderCollision->right = true;
             }
         }
         //y-achsis adjustment
@@ -155,8 +178,10 @@ void moveCam(Camera2D *cam) {
         if (isCamOutOfBounds(cam)) {
             if (oldTarget.y > cam->target.y) {
                 cam->target.y = 0 + cam->offset.y / cam->zoom;
+                camBorderCollision->up = true;
             } else {
                 cam->target.y = (float)BACKGROUND_SIZE - ((float)GetScreenHeight() / cam->zoom) + (cam->offset.y / cam->zoom);
+                camBorderCollision->down = true;
             }
         }
     }
@@ -220,7 +245,7 @@ void checkResetState(int *cells, Camera2D *cam) {
     cam->target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam->zoom / 2);
 }
 
-void drawHud(void) {
+void drawHud(CamBorderCollision *camBorderCollision) {
     if (currentGameState == PLACE_TILES) {
         DrawRectangle(GetScreenWidth()-50,GetScreenHeight()-90,20,60,BLACK);
         DrawRectangle(GetScreenWidth()-85,GetScreenHeight()-90,20,60,BLACK);
@@ -232,8 +257,19 @@ void drawHud(void) {
         DrawText("MOVE CAMERA",150,60,30,BLACK);
         DrawText("RESET",150,90,30,BLACK);
 
-        DrawRectangleLinesEx((Rectangle){20,22,370,105},4,BLACK);
-        
+        DrawRectangleLinesEx((Rectangle){20,22,370,105},4,BLACK);     
     }
 
+    if (camBorderCollision->left == true) {
+        DrawRectangleGradientV(0,0,10,GetScreenHeight(),YELLOW,PURPLE);
+    }
+    if (camBorderCollision->up == true) {
+        DrawRectangleGradientH(0,0,GetScreenWidth(),10,YELLOW,PURPLE);
+    }
+    if (camBorderCollision->right == true) {
+        DrawRectangleGradientV(GetScreenWidth()-10,0,10,GetScreenHeight(),PURPLE,YELLOW);
+    }
+    if (camBorderCollision->down == true) {
+        DrawRectangleGradientH(0,GetScreenHeight()-10,GetScreenWidth(),10,PURPLE,YELLOW);
+    }
 }
