@@ -54,7 +54,7 @@ int main(void) {
     int cells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE] = {0};
     //Simulation Update Cycle
     int frameCounter = 0;
-    int frameLimitForUpdate = 2;
+    int frameLimitForUpdate = 30;
     SetTargetFPS(60);              
 
 
@@ -166,7 +166,7 @@ void moveCam(Camera2D *cam, CamBorderCollision *camBorderCollision) {
         //Set to map boundaries when out of bounds
         //x-achsis adjustment
         cam->target.x = cam->target.x - difference.x;
-        if (isCamOutOfBounds(cam)) {
+        if (isCamOutOfBounds(cam)) { 
             if (oldTarget.x > cam->target.x) {
                 cam->target.x = 0 + cam->offset.x / cam->zoom;
                 camBorderCollision->left = true;
@@ -174,6 +174,7 @@ void moveCam(Camera2D *cam, CamBorderCollision *camBorderCollision) {
                 cam->target.x = (float)BACKGROUND_SIZE - ((float)GetScreenWidth() / cam->zoom) + (cam->offset.x / cam->zoom);
                 camBorderCollision->right = true;
             }
+
         }
         //y-achsis adjustment
         cam->target.y = cam->target.y - difference.y;
@@ -249,17 +250,34 @@ void checkResetState(int *cells, Camera2D *cam) {
 
 void drawUI(CamBorderCollision *camBorderCollision, int *frameLimitForUpdate) {
     if (currentGameState == PLACE_TILES) {
+        //Pause
         DrawRectangle(GetScreenWidth()-50,GetScreenHeight()-90,20,60,BLACK);
         DrawRectangle(GetScreenWidth()-85,GetScreenHeight()-90,20,60,BLACK);
+        //Keys
         DrawText("ENTER",30,30,30,RED);
         DrawText("SPACE",30,60,30,RED);
         DrawText("R",30,90,30,RED);
-
+        DrawText("ARROW UP",30,120,30,RED);
+        DrawText("ARROW DOWN",30,150,30,RED);
+        //Keys Description
         DrawText("PLAY/PAUSE",150,30,30,BLACK);
         DrawText("MOVE CAMERA",150,60,30,BLACK);
         DrawText("RESET",150,90,30,BLACK);
+        DrawText("SPEED +",250,120,30,BLACK);
+        DrawText("SPEED -",250,150,30,BLACK);
+        //Box around key description
+        DrawRectangleLinesEx((Rectangle){20,22,380,165},4,BLACK);    
+        //Draw Mouse Buttons
+        DrawText("LEFT MOUSE",450,30,30,RED);
+        DrawText("RIGHT MOUSE",450,60,30,RED);
+        DrawText("MOUSE WHEEL",450,90,30,RED); 
+        //Draw Mouse Button Description
+        DrawText("PLACE CELL",690,30,30,BLACK);
+        DrawText("DELETE CELL",690,60,30,BLACK);
+        DrawText("ZOOM",690,90,30,BLACK);
+        //Box around mouse
+        DrawRectangleLinesEx((Rectangle){440,22,475,105},4,BLACK);  
 
-        DrawRectangleLinesEx((Rectangle){20,22,370,105},4,BLACK);     
     }
 
     if (camBorderCollision->left == true) {
