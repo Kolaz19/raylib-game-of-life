@@ -31,10 +31,11 @@ void zoomCam(Camera2D *cam, CamBorderCollision *camBorderCollision);
 void moveCam(Camera2D *cam, CamBorderCollision *camBorderCollision);
 void adjustTargetToMouse(Camera2D *cam);
 bool isCamOutOfBounds(Camera2D *cam);
-void simulate(int *cells, int *frameCounter, int frameCycle);
+void simulate(int *cells, int *frameCounter, int frameLimitForUpdate);
 void checkSwitchModes(void);
 void checkResetState(int *cells, Camera2D *cam);
-void drawHud(CamBorderCollision *camBorderCollision);
+void drawUI(CamBorderCollision *camBorderCollision, int *frameLimitForUpdate);
+void checkForUpdateSpeed(int *frameLimitForUpdate, int *frameCounter);
 
 int main(void) {
     //Initialization
@@ -53,7 +54,7 @@ int main(void) {
     int cells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE] = {0};
     //Simulation Update Cycle
     int frameCounter = 0;
-    int frameLimitForUpdate = 1;
+    int frameLimitForUpdate = 2;
     SetTargetFPS(60);              
 
 
@@ -71,6 +72,7 @@ int main(void) {
         moveCam(&cam, &camBorderCollision);
         //Update
         checkSwitchModes();
+        checkForUpdateSpeed(&frameLimitForUpdate, &frameCounter);
         checkResetState(&cells[0][0],&cam);
         switch(currentGameState) {
             case SIMULATE:
@@ -95,7 +97,7 @@ int main(void) {
                 }
             } 
             EndMode2D();
-            drawHud(&camBorderCollision);
+            drawUI(&camBorderCollision, &frameLimitForUpdate);
         EndDrawing();
 
     }
@@ -245,7 +247,7 @@ void checkResetState(int *cells, Camera2D *cam) {
     cam->target.y = (BACKGROUND_SIZE / 2) - (screenHeight / cam->zoom / 2);
 }
 
-void drawHud(CamBorderCollision *camBorderCollision) {
+void drawUI(CamBorderCollision *camBorderCollision, int *frameLimitForUpdate) {
     if (currentGameState == PLACE_TILES) {
         DrawRectangle(GetScreenWidth()-50,GetScreenHeight()-90,20,60,BLACK);
         DrawRectangle(GetScreenWidth()-85,GetScreenHeight()-90,20,60,BLACK);
@@ -271,5 +273,42 @@ void drawHud(CamBorderCollision *camBorderCollision) {
     }
     if (camBorderCollision->down == true) {
         DrawRectangleGradientH(0,GetScreenHeight()-10,GetScreenWidth(),10,PURPLE,YELLOW);
+    }
+    //Draw Updates per second
+    int upsToDisplay = 60 / *frameLimitForUpdate;
+    char ups[6] = "\0";
+    ups[0] = (int)(upsToDisplay/10) + '0';
+    if(ups[0] == '0') ups[0] = ' ';
+    ups[1] = (upsToDisplay%10) + '0';
+    ups[2] = 'U';
+    ups[3] = 'P';
+    ups[4] = 'S';
+    DrawText(ups,GetScreenWidth()-80,10,20,BLACK);
+}
+
+void checkForUpdateSpeed(int *frameLimitForUpdate, int *frameCounter) {
+
+    if (IsKeyPressed(KEY_DOWN)) {
+        switch (*frameLimitForUpdate) {
+            case 1: *frameLimitForUpdate = 2; break;
+            case 2: *frameLimitForUpdate = 5; break;
+            case 5: *frameLimitForUpdate = 10; break;
+            case 10: *frameLimitForUpdate = 20; break;
+            case 20: *frameLimitForUpdate = 30; break;
+            case 30: *frameLimitForUpdate = 60; break;
+        }
+    } else if (IsKeyPressed(KEY_UP)) {
+         switch (*frameLimitForUpdate) {
+            case 60: *frameLimitForUpdate = 30; break;
+            case 30: *frameLimitForUpdate = 20; break;
+            case 20: *frameLimitForUpdate = 10; break;
+            case 10: *frameLimitForUpdate = 5; break;
+            case 5: *frameLimitForUpdate = 2; break;
+            case 2: *frameLimitForUpdate = 1; break;
+        }       
+    }
+
+    if (*frameCounter > *frameLimitForUpdate) {
+        *frameCounter = *frameLimitForUpdate;
     }
 }
