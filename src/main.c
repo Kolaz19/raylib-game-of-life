@@ -92,7 +92,7 @@ int main(void) {
             for(int i = 0; i < AMOUNT_CELLS_LANE; i++) {
                 for (int k = 0; k < AMOUNT_CELLS_LANE; k++) {
                     if(cells[i][k] == 1) {
-                        DrawRectangle(k*SPACE_BETWEEN_CELLS+1,i*SPACE_BETWEEN_CELLS+1,SPACE_BETWEEN_CELLS-1,SPACE_BETWEEN_CELLS-1,BLUE);
+                        DrawRectangle(k*SPACE_BETWEEN_CELLS+1,i*SPACE_BETWEEN_CELLS+1,SPACE_BETWEEN_CELLS-1,SPACE_BETWEEN_CELLS-1,DARKPURPLE);
                     }
                 }
             } 

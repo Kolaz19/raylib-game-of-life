@@ -11,20 +11,20 @@ CFLAGS = -static -fdiagnostics-color=always
 build_debug: $(OBJ_DIR)main.o $(OBJ_DIR)gridCalc.o $(OBJ_DIR)cellPlacement.o
 	$(CC) $(CFLAGS) -o game_of_life $(OUTPUT_FLAGS) $(OBJ_DIR)main.o $(OBJ_DIR)gridCalc.o $(OBJ_DIR)cellPlacement.o $(LINKERS)
 
-build_release: $(OBJ_DIR)main.o
-	$(CC) $(CFLAGS) -o game_of_life $(OUTPUT_FLAGS) $(OBJ_DIR)main.o $(OBJ_DIR)gridCalc.o $(LINKERS) -mwindows
+build_release: $(OBJ_DIR)main.o $(OBJ_DIR)gridCalc.o $(OBJ_DIR)cellPlacement.o
+	$(CC) $(CFLAGS) -o game_of_life $(OUTPUT_FLAGS) $(OBJ_DIR)main.o $(OBJ_DIR)gridCalc.o $(OBJ_DIR)cellPlacement.o $(LINKERS) -mwindows
 
-#debugging on
+#debugging on -g
 $(OBJ_DIR)main.o: $(SRC_DIR)main.c
 	$(CC) -g -c $(SRC_DIR)main.c
 	mv main.o $(OBJ_DIR)
 
-#debugging on
+#debugging on -g
 $(OBJ_DIR)gridCalc.o: $(SRC_DIR)gridCalc.c
 	$(CC) -g -c $(SRC_DIR)gridCalc.c
 	mv gridCalc.o $(OBJ_DIR)
 
-#debugging on
+#debugging on -g
 $(OBJ_DIR)cellPlacement.o: $(SRC_DIR)cellPlacement.c
 	$(CC) -g -c $(SRC_DIR)cellPlacement.c
 	mv cellPlacement.o $(OBJ_DIR)
