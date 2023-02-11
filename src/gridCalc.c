@@ -1,6 +1,6 @@
 #include "../include/gridCalc.h"
 #include "../include/gridProperties.h"
-//#define NDEBUG
+#define NDEBUG
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -11,7 +11,6 @@ int getNumberOfNeighbours(int **neighbours);
 bool willCellLive(int **neighbours);
 
 void setNextGeneration(int* cells) {
-
     //Copy current cells to working array and clear current cells
     int oldCells[AMOUNT_CELLS_LANE][AMOUNT_CELLS_LANE];
 

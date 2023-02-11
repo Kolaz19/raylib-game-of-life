@@ -39,8 +39,9 @@ void checkForUpdateSpeed(int *frameLimitForUpdate, int *frameCounter);
 
 int main(void) {
     //Initialization
-    SetConfigFlags(FLAG_INTERLACED_HINT);
     InitWindow(screenWidth, screenHeight, "Game of Life");
+    Image icon = LoadImage("game_of_life_icon.png");
+    SetWindowIcon(icon);
     //Background
     RenderTexture2D backgroundTexture = LoadRenderTexture(BACKGROUND_SIZE,BACKGROUND_SIZE);
     prepareBackgroundTexture(&backgroundTexture);
@@ -279,7 +280,7 @@ void drawUI(CamBorderCollision *camBorderCollision, int *frameLimitForUpdate) {
         DrawRectangleLinesEx((Rectangle){440,22,475,105},4,BLACK);  
 
     }
-
+    //Draw cam colliding with border
     if (camBorderCollision->left == true) {
         DrawRectangleGradientV(0,0,10,GetScreenHeight(),YELLOW,PURPLE);
     }
