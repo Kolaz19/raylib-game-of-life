@@ -11,13 +11,17 @@ typedef enum EditMode {
 
 EditMode getEditMode();
 int* getCellAtMousePos(int *cells, Vector2 mousePos);
+bool isMouseOutOfBounds(Vector2 *mousePos);
 
 
 void placeCellWithCursor(int *cells, Camera2D *cam) {
     EditMode editMode = getEditMode();
     if (editMode == NONE) return;
 
-    int *cellAtMouse = getCellAtMousePos(cells,GetScreenToWorld2D(GetMousePosition(),*cam));
+    Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(),*cam);
+    if (isMouseOutOfBounds(&mousePos)) return;
+
+    int *cellAtMouse = getCellAtMousePos(cells,mousePos);
     if (cellAtMouse == NULL) return;
 
     if (editMode == PLACE) {
@@ -52,4 +56,13 @@ int* getCellAtMousePos(int *cells, Vector2 mousePos) {
     if(!CheckCollisionPointRec(mousePos,rect)) return NULL;
     
     return cells+(yCell*AMOUNT_CELLS_LANE+xCell);
+}
+
+bool isMouseOutOfBounds(Vector2 *mousePos) {
+    if ((mousePos->x > AMOUNT_CELLS_LANE * SPACE_BETWEEN_CELLS)
+    || (mousePos->y > AMOUNT_CELLS_LANE * SPACE_BETWEEN_CELLS)) {
+        return true;
+    } else {
+        return false;
+    }
 }
